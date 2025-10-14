@@ -430,7 +430,7 @@
                 <div class="input-label">
                     <i class="fas fa-cash-register"></i> Pendapatan Kotor (Total Penjualan)
                 </div>
-                <input type="number" id="totalPenjualan" class="input-field" placeholder="0" min="0">
+                <input type="text" id="totalPenjualan" class="input-field" placeholder="0" inputmode="numeric">
             </div>
             
             <!-- Pengeluaran -->
@@ -462,13 +462,13 @@
                     <div class="input-label">
                         <i class="fas fa-wallet"></i> Tunai
                     </div>
-                    <input type="number" id="uangTunai" class="input-field" placeholder="0" min="0">
+                    <input type="text" id="uangTunai" class="input-field" placeholder="0" inputmode="numeric">
                 </div>
                 <div>
                     <div class="input-label">
                         <i class="fas fa-qrcode"></i> QRIS
                     </div>
-                    <input type="number" id="qris" class="input-field" placeholder="0" min="0">
+                    <input type="text" id="qris" class="input-field" placeholder="0" inputmode="numeric">
                 </div>
             </div>
             
@@ -532,7 +532,7 @@
                     </div>
                     <div class="input-wrapper">
                         <div class="input-label">Nominal</div>
-                        <input type="number" id="nominalPengeluaran" class="input-field" placeholder="0" min="0">
+                        <input type="text" id="nominalPengeluaran" class="input-field" placeholder="0" inputmode="numeric">
                     </div>
                 </div>
                 <div class="modal-footer" style="padding: 15px 20px;">
@@ -577,6 +577,12 @@
         window.addEventListener('load', function() {
             setTanggalHariIni();
             loadData();
+            
+            // Setup formatters untuk input nominal
+            setupInputFormatter('totalPenjualan');
+            setupInputFormatter('uangTunai');
+            setupInputFormatter('qris');
+            setupInputFormatter('nominalPengeluaran');
         });
     </script>
 
@@ -598,6 +604,42 @@
             }).format(angka);
         }
 
+        // Format input dengan separator ribuan
+        function formatInputNumber(value) {
+            // Hapus semua karakter non-digit
+            const numbers = value.replace(/\D/g, '');
+            
+            // Format dengan titik sebagai separator ribuan
+            return numbers.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        // Parse input (hapus separator) untuk perhitungan
+        function parseInputNumber(value) {
+            return parseFloat(value.replace(/\./g, '')) || 0;
+        }
+
+        // Setup input formatter untuk field nominal
+        function setupInputFormatter(elementId) {
+            const element = document.getElementById(elementId);
+            
+            element.addEventListener('input', function(e) {
+                const cursorPosition = this.selectionStart;
+                const oldValue = this.value;
+                const newValue = formatInputNumber(this.value);
+                
+                this.value = newValue;
+                
+                // Adjust cursor position
+                const diff = newValue.length - oldValue.length;
+                this.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
+                
+                // Trigger hitung total untuk field di form utama
+                if (['totalPenjualan', 'uangTunai', 'qris'].includes(elementId)) {
+                    hitungTotal();
+                }
+            });
+        }
+
         function tambahPengeluaran() {
             if (!modalPengeluaran) {
                 modalPengeluaran = new bootstrap.Modal(document.getElementById('modalPengeluaran'));
@@ -609,7 +651,7 @@
 
         function simpanPengeluaran() {
             const keterangan = document.getElementById('keteranganPengeluaran').value.trim();
-            const nominal = parseFloat(document.getElementById('nominalPengeluaran').value) || 0;
+            const nominal = parseInputNumber(document.getElementById('nominalPengeluaran').value);
 
             if (!keterangan) {
                 alert('Mohon isi keterangan pengeluaran!');
@@ -656,9 +698,9 @@
         }
 
         function hitungTotal() {
-            const totalPenjualan = parseFloat(document.getElementById('totalPenjualan').value) || 0;
-            const uangTunai = parseFloat(document.getElementById('uangTunai').value) || 0;
-            const qris = parseFloat(document.getElementById('qris').value) || 0;
+            const totalPenjualan = parseInputNumber(document.getElementById('totalPenjualan').value);
+            const uangTunai = parseInputNumber(document.getElementById('uangTunai').value);
+            const qris = parseInputNumber(document.getElementById('qris').value);
             
             const totalPengeluaran = pengeluaranData.reduce((sum, item) => sum + item.nominal, 0);
             const pendapatanBersih = totalPenjualan - totalPengeluaran;
@@ -677,15 +719,11 @@
             }
         }
 
-        document.getElementById('totalPenjualan').addEventListener('input', hitungTotal);
-        document.getElementById('uangTunai').addEventListener('input', hitungTotal);
-        document.getElementById('qris').addEventListener('input', hitungTotal);
-
         async function simpanLaporan() {
             const tanggal = document.getElementById('tanggal').value;
-            const totalPenjualan = parseFloat(document.getElementById('totalPenjualan').value) || 0;
-            const uangTunai = parseFloat(document.getElementById('uangTunai').value) || 0;
-            const qris = parseFloat(document.getElementById('qris').value) || 0;
+            const totalPenjualan = parseInputNumber(document.getElementById('totalPenjualan').value);
+            const uangTunai = parseInputNumber(document.getElementById('uangTunai').value);
+            const qris = parseInputNumber(document.getElementById('qris').value);
 
             if (!tanggal) {
                 alert('Mohon pilih tanggal!');
