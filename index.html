@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pinuslo Cafe - Laporan Harian</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-blue: #0046FF;
+            --secondary-cyan: #73C8D2;
+            --light-cream: #F5F1DC;
+            --accent-orange: #FF9013;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--light-cream);
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-cyan) 100%);
+            color: white;
+            padding: 20px 15px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 70, 255, 0.3);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        /* Container */
+        .main-container {
+            padding: 15px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        
+        /* Card */
+        .card-mobile {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        /* Input Group */
+        .input-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(0, 70, 255, 0.1);
+        }
+        
+        /* Button */
+        .btn-primary-custom {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 70, 255, 0.3);
+        }
+        
+        .btn-primary-custom:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-secondary-custom {
+            background: var(--accent-orange);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-secondary-custom:active {
+            transform: scale(0.98);
+        }
+        
+        /* Expense Item */
+        .expense-item {
+            background: #f8f9fa;
+            border-left: 4px solid var(--accent-orange);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .expense-item strong {
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .expense-amount {
+            color: var(--accent-orange);
+            font-weight: 700;
+            font-size: 15px;
+        }
+        
+        .btn-delete {
+            background: transparent;
+            border: none;
+            color: #dc3545;
+            padding: 5px 10px;
+            font-size: 16px;
+        }
+        
+        /* Summary Cards */
+        .summary-box {
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 12px;
+            color: white;
+        }
+        
+        .summary-box.sales {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-cyan) 100%);
+        }
+        
+        .summary-box.expense {
+            background: linear-gradient(135deg, var(--accent-orange) 0%, #ff6b35 100%);
+        }
+        
+        .summary-box.net {
+            background: linear-gradient(135deg, var(--secondary-cyan) 0%, #4dd0e1 100%);
+        }
+        
+        .summary-box.profit {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .summary-box.profit.negative {
+            background: linear-gradient(135deg, #ff4757 0%, #dc3545 100%);
+        }
+        
+        .summary-label {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .summary-value {
+            font-size: 22px;
+            font-weight: 700;
+        }
+        
+        /* Tabs */
+        .tabs-container {
+            background: white;
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #666;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            background: var(--primary-blue);
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 70, 255, 0.3);
+        }
+        
+        /* History Card */
+        .history-card {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--primary-blue);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        
+        .history-date {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .history-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 8px;
+            background: var(--light-cream);
+            border-radius: 8px;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .stat-value {
+            font-size: 14px;
+            font-weight: 700;
+        }
+        
+        .stat-value.positive {
+            color: #43e97b;
+        }
+        
+        .stat-value.loss {
+            color: #ff4757;
+            font-weight: 900;
+        }
+        
+        .stat-value.negative {
+            color: var(--accent-orange);
+        }
+        
+        .stat-value.primary {
+            color: var(--primary-blue);
+        }
+        
+        .stat-value.cyan {
+            color: var(--secondary-cyan);
+        }
+        
+        /* Modal */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-cyan) 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+        }
+        
+        .modal-title {
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        .btn-close {
+            filter: brightness(0) invert(1);
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--primary-blue);
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--light-cream);
+            border-top-color: var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Week/Month Summary Cards */
+        .period-summary {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-cyan) 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 16px rgba(0, 70, 255, 0.3);
+        }
+        
+        .period-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        
+        .period-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .period-stat {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .period-stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .period-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1><i class="fas fa-coffee"></i> Pinuslo Cafe</h1>
+        <p>Laporan Keuangan Harian</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Input Form Card -->
+        <div class="card-mobile">
+            <h5 style="color: var(--primary-blue); font-weight: 700; margin-bottom: 20px;">
+                <i class="fas fa-edit"></i> Input Laporan Hari Ini
+            </h5>
+            
+            <!-- Tanggal -->
+            <div class="input-wrapper">
+                <div class="input-label">
+                    <i class="fas fa-calendar-alt"></i> Tanggal
+                </div>
+                <input type="date" id="tanggal" class="input-field">
+            </div>
+            
+            <!-- Total Penjualan -->
+            <div class="input-wrapper">
+                <div class="input-label">
+                    <i class="fas fa-cash-register"></i> Pendapatan Kotor (Total Penjualan)
+                </div>
+                <input type="number" id="totalPenjualan" class="input-field" placeholder="0" min="0">
+            </div>
+            
+            <!-- Pengeluaran -->
+            <div class="input-wrapper">
+                <div class="input-label" style="justify-content: space-between; width: 100%;">
+                    <span><i class="fas fa-money-bill-wave"></i> Pengeluaran</span>
+                    <button class="btn-secondary-custom" onclick="tambahPengeluaran()">
+                        <i class="fas fa-plus"></i> Tambah
+                    </button>
+                </div>
+                <div id="pengeluaranList" style="margin-top: 10px;"></div>
+            </div>
+            
+            <!-- Summary Total Pengeluaran -->
+            <div class="summary-box expense">
+                <div class="summary-label">Total Pengeluaran</div>
+                <div class="summary-value" id="totalPengeluaran">Rp 0</div>
+            </div>
+            
+            <!-- Pendapatan Bersih -->
+            <div class="summary-box net">
+                <div class="summary-label">Pendapatan Bersih</div>
+                <div class="summary-value" id="pendapatanBersih">Rp 0</div>
+            </div>
+            
+            <!-- Metode Pembayaran -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
+                <div>
+                    <div class="input-label">
+                        <i class="fas fa-wallet"></i> Tunai
+                    </div>
+                    <input type="number" id="uangTunai" class="input-field" placeholder="0" min="0">
+                </div>
+                <div>
+                    <div class="input-label">
+                        <i class="fas fa-qrcode"></i> QRIS
+                    </div>
+                    <input type="number" id="qris" class="input-field" placeholder="0" min="0">
+                </div>
+            </div>
+            
+            <!-- Laba Bersih -->
+            <div class="summary-box profit">
+                <div class="summary-label">
+                    <i class="fas fa-chart-line"></i> Laba Bersih Harian
+                </div>
+                <div class="summary-value" id="labaBersih">Rp 0</div>
+            </div>
+            
+            <!-- Tombol Simpan -->
+            <button class="btn-primary-custom" onclick="simpanLaporan()">
+                <i class="fas fa-save"></i> Simpan Laporan
+            </button>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchTab('harian')">
+                <i class="fas fa-calendar-day"></i> Harian
+            </button>
+            <button class="tab-btn" onclick="switchTab('mingguan')">
+                <i class="fas fa-calendar-week"></i> Minggu
+            </button>
+            <button class="tab-btn" onclick="switchTab('bulanan')">
+                <i class="fas fa-calendar-alt"></i> Bulan
+            </button>
+        </div>
+        
+        <!-- Content Tabs -->
+        <div id="harianContent" class="tab-content">
+            <div id="harianList"></div>
+        </div>
+        
+        <div id="mingguanContent" class="tab-content" style="display: none;">
+            <div id="mingguanSummary"></div>
+            <div id="mingguanList"></div>
+        </div>
+        
+        <div id="bulananContent" class="tab-content" style="display: none;">
+            <div id="bulananSummary"></div>
+            <div id="bulananList"></div>
+        </div>
+    </div>
+
+    <!-- Modal Tambah Pengeluaran -->
+    <div class="modal fade" id="modalPengeluaran" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus-circle"></i> Tambah Pengeluaran
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 20px;">
+                    <div class="input-wrapper">
+                        <div class="input-label">Keterangan</div>
+                        <input type="text" id="keteranganPengeluaran" class="input-field" placeholder="Contoh: Beli bahan baku">
+                    </div>
+                    <div class="input-wrapper">
+                        <div class="input-label">Nominal</div>
+                        <input type="number" id="nominalPengeluaran" class="input-field" placeholder="0" min="0">
+                    </div>
+                </div>
+                <div class="modal-footer" style="padding: 15px 20px;">
+                    <button type="button" class="btn-secondary-custom" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn-primary-custom" onclick="simpanPengeluaran()" style="width: auto; padding: 10px 30px;">
+                        <i class="fas fa-check"></i> Simpan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBW5mKFAuByV4bHUFoqTfNh0oFb8t5GtDg",
+            authDomain: "pinuslocafe.firebaseapp.com",
+            projectId: "pinuslocafe",
+            storageBucket: "pinuslocafe.firebasestorage.app",
+            messagingSenderId: "1076534678727",
+            appId: "1:1076534678727:web:c308b1cc2f538197d1dae2",
+            measurementId: "G-1Q7K7G9F5Q"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.db = db;
+        window.addDoc = addDoc;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.query = query;
+        window.orderBy = orderBy;
+        window.where = where;
+
+        window.addEventListener('load', function() {
+            setTanggalHariIni();
+            loadData();
+        });
+    </script>
+
+    <script>
+        let pengeluaranData = [];
+        let modalPengeluaran;
+        let currentTab = 'harian';
+
+        function setTanggalHariIni() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('tanggal').value = today;
+        }
+
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(angka);
+        }
+
+        function tambahPengeluaran() {
+            if (!modalPengeluaran) {
+                modalPengeluaran = new bootstrap.Modal(document.getElementById('modalPengeluaran'));
+            }
+            document.getElementById('keteranganPengeluaran').value = '';
+            document.getElementById('nominalPengeluaran').value = '';
+            modalPengeluaran.show();
+        }
+
+        function simpanPengeluaran() {
+            const keterangan = document.getElementById('keteranganPengeluaran').value.trim();
+            const nominal = parseFloat(document.getElementById('nominalPengeluaran').value) || 0;
+
+            if (!keterangan) {
+                alert('Mohon isi keterangan pengeluaran!');
+                return;
+            }
+
+            if (nominal <= 0) {
+                alert('Mohon isi nominal pengeluaran yang valid!');
+                return;
+            }
+
+            pengeluaranData.push({ keterangan, nominal });
+            updatePengeluaranList();
+            hitungTotal();
+            modalPengeluaran.hide();
+        }
+
+        function updatePengeluaranList() {
+            const list = document.getElementById('pengeluaranList');
+            if (pengeluaranData.length === 0) {
+                list.innerHTML = '<p style="color: #999; font-size: 13px; margin: 10px 0;">Belum ada pengeluaran</p>';
+                return;
+            }
+
+            list.innerHTML = pengeluaranData.map((item, index) => `
+                <div class="expense-item">
+                    <div>
+                        <strong>${item.keterangan}</strong>
+                        <div class="expense-amount">${formatRupiah(item.nominal)}</div>
+                    </div>
+                    <button class="btn-delete" onclick="hapusPengeluaran(${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function hapusPengeluaran(index) {
+            if (confirm('Hapus pengeluaran ini?')) {
+                pengeluaranData.splice(index, 1);
+                updatePengeluaranList();
+                hitungTotal();
+            }
+        }
+
+        function hitungTotal() {
+            const totalPenjualan = parseFloat(document.getElementById('totalPenjualan').value) || 0;
+            const uangTunai = parseFloat(document.getElementById('uangTunai').value) || 0;
+            const qris = parseFloat(document.getElementById('qris').value) || 0;
+            
+            const totalPengeluaran = pengeluaranData.reduce((sum, item) => sum + item.nominal, 0);
+            const pendapatanBersih = totalPenjualan - totalPengeluaran;
+            const labaBersih = pendapatanBersih - (uangTunai + qris);
+
+            document.getElementById('totalPengeluaran').textContent = formatRupiah(totalPengeluaran);
+            document.getElementById('pendapatanBersih').textContent = formatRupiah(pendapatanBersih);
+            document.getElementById('labaBersih').textContent = formatRupiah(labaBersih);
+            
+            // Update styling untuk laba bersih
+            const labaBersihBox = document.getElementById('labaBersih').closest('.summary-box');
+            if (labaBersih < 0) {
+                labaBersihBox.classList.add('negative');
+            } else {
+                labaBersihBox.classList.remove('negative');
+            }
+        }
+
+        document.getElementById('totalPenjualan').addEventListener('input', hitungTotal);
+        document.getElementById('uangTunai').addEventListener('input', hitungTotal);
+        document.getElementById('qris').addEventListener('input', hitungTotal);
+
+        async function simpanLaporan() {
+            const tanggal = document.getElementById('tanggal').value;
+            const totalPenjualan = parseFloat(document.getElementById('totalPenjualan').value) || 0;
+            const uangTunai = parseFloat(document.getElementById('uangTunai').value) || 0;
+            const qris = parseFloat(document.getElementById('qris').value) || 0;
+
+            if (!tanggal) {
+                alert('Mohon pilih tanggal!');
+                return;
+            }
+
+            if (totalPenjualan <= 0) {
+                alert('Mohon isi total penjualan!');
+                return;
+            }
+
+            const totalPengeluaran = pengeluaranData.reduce((sum, item) => sum + item.nominal, 0);
+            const pendapatanBersih = totalPenjualan - totalPengeluaran;
+            const labaBersih = pendapatanBersih - (uangTunai + qris);
+
+            const laporan = {
+                tanggal,
+                pendapatanKotor: totalPenjualan,
+                pengeluaran: pengeluaranData,
+                totalPengeluaran,
+                pendapatanBersih,
+                uangTunai,
+                qris,
+                labaBersih,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                await window.addDoc(window.collection(window.db, "laporanHarian"), laporan);
+                alert('✅ Laporan berhasil disimpan!');
+                resetForm();
+                loadData();
+            } catch (error) {
+                console.error("Error: ", error);
+                alert('❌ Gagal menyimpan laporan: ' + error.message);
+            }
+        }
+
+        function resetForm() {
+            setTanggalHariIni();
+            document.getElementById('totalPenjualan').value = '';
+            document.getElementById('uangTunai').value = '';
+            document.getElementById('qris').value = '';
+            pengeluaranData = [];
+            updatePengeluaranList();
+            hitungTotal();
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.tab-btn').classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+            document.getElementById(tab + 'Content').style.display = 'block';
+            
+            loadData();
+        }
+
+        async function loadData() {
+            if (currentTab === 'harian') {
+                await loadHarian();
+            } else if (currentTab === 'mingguan') {
+                await loadMingguan();
+            } else if (currentTab === 'bulanan') {
+                await loadBulanan();
+            }
+        }
+
+        async function loadHarian() {
+            const container = document.getElementById('harianList');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Memuat data...</p></div>';
+            
+            try {
+                const q = window.query(window.collection(window.db, "laporanHarian"), window.orderBy("tanggal", "desc"));
+                const querySnapshot = await window.getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>Belum ada laporan harian</p></div>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const labaBersihClass = data.labaBersih < 0 ? 'loss' : 'positive';
+                    const card = `
+                        <div class="history-card">
+                            <div class="history-date">
+                                <i class="fas fa-calendar-day"></i> ${formatTanggal(data.tanggal)}
+                            </div>
+                            <div class="history-stats">
+                                <div class="stat-item">
+                                    <div class="stat-label">Pendapatan Kotor</div>
+                                    <div class="stat-value primary">${formatRupiah(data.pendapatanKotor)}</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Pengeluaran</div>
+                                    <div class="stat-value negative">${formatRupiah(data.totalPengeluaran)}</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Pendapatan Bersih</div>
+                                    <div class="stat-value cyan">${formatRupiah(data.pendapatanBersih)}</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Laba Bersih</div>
+                                    <div class="stat-value ${labaBersihClass}">${formatRupiah(data.labaBersih)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += card;
+                });
+            } catch (error) {
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error: ${error.message}</p></div>`;
+            }
+        }
+
+        async function loadMingguan() {
+            const summaryContainer = document.getElementById('mingguanSummary');
+            const listContainer = document.getElementById('mingguanList');
+            
+            summaryContainer.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            listContainer.innerHTML = '';
+            
+            try {
+                const q = window.query(window.collection(window.db, "laporanHarian"), window.orderBy("tanggal", "desc"));
+                const querySnapshot = await window.getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    summaryContainer.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>Belum ada data</p></div>';
+                    return;
+                }
+
+                const weeklyData = {};
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const week = getWeekNumber(new Date(data.tanggal));
+                    
+                    if (!weeklyData[week]) {
+                        weeklyData[week] = {
+                            pendapatanKotor: 0,
+                            totalPengeluaran: 0,
+                            pendapatanBersih: 0,
+                            labaBersih: 0,
+                            count: 0
+                        };
+                    }
+                    
+                    weeklyData[week].pendapatanKotor += data.pendapatanKotor;
+                    weeklyData[week].totalPengeluaran += data.totalPengeluaran;
+                    weeklyData[week].pendapatanBersih += data.pendapatanBersih;
+                    weeklyData[week].labaBersih += data.labaBersih;
+                    weeklyData[week].count++;
+                });
+
+                const weeks = Object.keys(weeklyData).sort().reverse();
+                
+                if (weeks.length > 0) {
+                    const latestWeek = weeklyData[weeks[0]];
+                    const labaBersihStyle = latestWeek.labaBersih < 0 ? 'style="color: #ff4757; font-weight: 900;"' : '';
+                    summaryContainer.innerHTML = `
+                        <div class="period-summary">
+                            <div class="period-title"><i class="fas fa-chart-bar"></i> Minggu Ini</div>
+                            <div class="period-stats">
+                                <div class="period-stat">
+                                    <div class="period-stat-label">Pendapatan Kotor</div>
+                                    <div class="period-stat-value">${formatRupiah(latestWeek.pendapatanKotor)}</div>
+                                </div>
+                                <div class="period-stat">
+                                    <div class="period-stat-label">Pengeluaran</div>
+                                    <div class="period-stat-value">${formatRupiah(latestWeek.totalPengeluaran)}</div>
+                                </div>
+                                <div class="period-stat">
+                                    <div class="period-stat-label">Pendapatan Bersih</div>
+                                    <div class="period-stat-value">${formatRupiah(latestWeek.pendapatanBersih)}</div>
+                                </div>
+                                <div class="period-stat">
+                                    <div class="period-stat-label">Laba Bersih</div>
+                                    <div class="period-stat-value" ${labaBersihStyle}>${formatRupiah(latestWeek.labaBersih)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                weeks.forEach(week => {
+                    const data = weeklyData[week];
+                    const labaBersihClass = data.labaBersih < 0 ? 'loss' : 'positive';
+                    const card = `
+                        <div class="history-card">
+                            <div class="history-date">
+                                <i class="fas fa-calendar-week"></i> ${week}
+                            </div>
+                            <div class="history-stats">
+                                <div class="stat-item">
+                                    <div class="stat-label">Pendapatan Kotor</div>
+                                    <div class="stat-value primary">${formatRupiah(data.pendapatanKotor)}</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Pengeluaran</div>
+                                    <div class="stat-value negative">${formatRupiah(data.totalPengeluaran)}</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Pendapatan Bersih</div>
+                                    <div class="stat-value cyan">${formatRupiah(data.pendapatanBersih)}</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Laba Bersih</div>
+                                    <div class="stat-value ${labaBersihClass}">${formatRupiah(data.labaBersih)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    listContainer.innerHTML += card;
+                });
+            } catch (error) {
+                summaryContainer.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error: ${error.message}</p></div>`;
+            }
+        }
+
+        async function loadBulanan() {
+            const summaryContainer = document.getElementById('bulananSummary');
+            const listContainer = document.getElementById('bulananList');
+            
+            summaryContainer.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            listContainer.innerHTML = '';
+            
+            try {
+                const q = window.query(window.collection(window.db, "laporanHarian"), window.orderBy("tanggal", "desc"));
+                const querySnapshot = await window.getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    summaryContainer.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>Belum ada data</p></div>';
+                    return;
+                }
+
+                const monthlyData = {};
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const date = new Date(data.tanggal);
+                    const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    
+                    if (!monthlyData[month]) {
+                        monthlyData[month] = {
+                            pendapatanKotor: 0,
+                            totalPengeluaran: 0,
+                            pendapatanBersih: 0,
+                            labaBersih: 0,
+                            count: 0
+                        };
+                    }
+                    
+                    monthlyData[month].pendapatanKotor += data.pendapatanKotor;
+                    monthlyData[month].totalPengeluaran += data.totalPengeluaran;
+                    monthlyData[month].pendapatanBersih += data.pendapatanBersih;
+                    monthlyData[month].labaBersih += data.labaBersih;
+                    monthlyData[month].count++;
+                });
+
+                const months = Object.keys(monthlyData).sort().reverse();
+                
+                if (months.length > 0) {
+                    const latestMonth = monthlyData[months[0]];
+                    const labaBersihStyle = latestMonth.labaBersih < 0 ? 'style="color: #ff4757; font-weight: 900;"' : '';
+                    summaryContainer.innerHTML = `
+                        <div class="period-summary">
+                            <div class="period-title"><i class="fas fa-chart-line"></i> Bulan Ini</div>
+                            <div class="period-stats">
+                                <div class="period-stat">
+                                    <div class="period-stat-label">Pendapatan Kotor</div>
+                                    <div class="period-stat-value">${formatRupiah(latestMonth.pendapatanKotor)}</div>
+                                </div>
+                                <div class="period-stat">
+                                    <div class="period-stat-label">Pengeluaran</div>
+                                    <div class="period-stat-value">${formatRupiah(latestMonth.totalPengeluaran)}</div>
+                                </div>
+                                <div class="period-stat">
+                                    <div class="period-stat-label">Pendapatan Bersih</div>
+                                    <div class="period-stat-value">${formatRupiah(latestMonth.pendapatanBersih)}</div>
+                                </div>
+                                <div class="period-stat">
+                                    <div class="period-stat-label">Laba Bersih</div>
+                                    <div class="period-stat-value" ${labaBersihStyle}>${formatRupiah(latestMonth.labaBersih)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                months.forEach(month => {
+                    const data = monthlyData[month];
+                    const labaBersihClass = data.labaBersih < 0 ? 'loss' : 'positive';
+                    const card = `
+                        <div class="history-card">
+                            <div class="history-date">
+                                <i class="fas fa-calendar-alt"></i> ${formatBulan(month)}
+                            </div>
+                            <div class="history-stats">
+                                <div class="stat-item">
+                                    <div class="stat-label">Pendapatan Kotor</div>
+                                    <div class="stat-value primary">${formatRupiah(data.pendapatanKotor)}</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Pengeluaran</div>
+                                    <div class="stat-value negative">${formatRupiah(data.totalPengeluaran)}</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Pendapatan Bersih</div>
+                                    <div class="stat-value cyan">${formatRupiah(data.pendapatanBersih)}</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Laba Bersih</div>
+                                    <div class="stat-value ${labaBersihClass}">${formatRupiah(data.labaBersih)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    listContainer.innerHTML += card;
+                });
+            } catch (error) {
+                summaryContainer.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error: ${error.message}</p></div>`;
+            }
+        }
+
+        function formatTanggal(tanggal) {
+            const date = new Date(tanggal);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('id-ID', options);
+        }
+
+        function formatBulan(month) {
+            const [year, monthNum] = month.split('-');
+            const date = new Date(year, parseInt(monthNum) - 1);
+            return date.toLocaleDateString('id-ID', { year: 'numeric', month: 'long' });
+        }
+
+        function getWeekNumber(date) {
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            return `Minggu ${weekNo}, ${d.getFullYear()}`;
+        }
+    </script>
+</body>
+</html>
