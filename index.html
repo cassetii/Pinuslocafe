@@ -260,10 +260,23 @@
         .history-card {
             background: white;
             border-radius: 15px;
-            padding: 15px;
             margin-bottom: 12px;
             border-left: 4px solid var(--primary-blue);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+
+        .history-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Header dalam card yang bisa diklik */
+        .history-card-header {
+            padding: 15px;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .history-date {
@@ -273,7 +286,26 @@
             margin-bottom: 10px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
+        }
+
+        .history-date-left {
+            display: flex;
+            align-items: center;
             gap: 8px;
+        }
+
+        /* Ikon panah toggle */
+        .toggle-icon {
+            font-size: 13px;
+            color: #bbb;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .history-card.open .toggle-icon {
+            transform: rotate(180deg);
+            color: var(--accent-orange);
         }
         
         .history-stats {
@@ -327,6 +359,110 @@
         
         .stat-value.qris {
             color: #6f42c1;
+        }
+
+        /* Tap hint */
+        .tap-hint {
+            font-size: 11px;
+            color: #ccc;
+            text-align: center;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .has-rincian .tap-hint {
+            color: var(--accent-orange);
+        }
+
+        /* Panel rincian pengeluaran — expand/collapse */
+        .rincian-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            background: #fafafa;
+        }
+
+        .history-card.open .rincian-panel {
+            max-height: 800px;
+            border-top: 1px dashed #e8e8e8;
+        }
+
+        .rincian-inner {
+            padding: 15px;
+        }
+
+        .rincian-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent-orange);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .rincian-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            border-left: 3px solid var(--accent-orange);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+
+        .rincian-keterangan {
+            font-size: 13px;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rincian-keterangan i {
+            color: var(--accent-orange);
+            font-size: 11px;
+        }
+
+        .rincian-nominal {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent-orange);
+        }
+
+        .rincian-empty {
+            text-align: center;
+            padding: 12px;
+            color: #bbb;
+            font-size: 13px;
+        }
+
+        .rincian-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: linear-gradient(135deg, var(--accent-orange), #ff6b35);
+            border-radius: 8px;
+            margin-top: 8px;
+            color: white;
+        }
+
+        .rincian-total span:first-child {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .rincian-total span:last-child {
+            font-size: 14px;
+            font-weight: 800;
         }
         
         /* Modal */
@@ -873,6 +1009,12 @@
             }
         }
 
+        // ========== TOGGLE RINCIAN ==========
+        function toggleRincian(cardEl) {
+            cardEl.classList.toggle('open');
+        }
+
+        // ========== LOAD HARIAN (DIUPDATE) ==========
         async function loadHarian() {
             const container = document.getElementById('harianList');
             container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Memuat data...</p></div>';
@@ -890,35 +1032,81 @@
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     const labaBersihClass = data.labaBersih < 0 ? 'loss' : 'positive';
-                    const card = `
-                        <div class="history-card">
-                            <div class="history-date">
-                                <i class="fas fa-calendar-day"></i> ${formatTanggal(data.tanggal)}
+                    const hasPengeluaran = data.pengeluaran && data.pengeluaran.length > 0;
+
+                    // Build rincian rows
+                    let rincianRows = '';
+                    if (hasPengeluaran) {
+                        rincianRows = data.pengeluaran.map(item => `
+                            <div class="rincian-row">
+                                <div class="rincian-keterangan">
+                                    <i class="fas fa-receipt"></i>
+                                    ${item.keterangan}
+                                </div>
+                                <div class="rincian-nominal">${formatRupiah(item.nominal)}</div>
                             </div>
-                            <div class="history-stats">
-                                <div class="stat-item">
-                                    <div class="stat-label">Pendapatan Kotor</div>
-                                    <div class="stat-value primary">${formatRupiah(data.pendapatanKotor)}</div>
+                        `).join('');
+                        rincianRows += `
+                            <div class="rincian-total">
+                                <span><i class="fas fa-calculator"></i> Total Pengeluaran</span>
+                                <span>${formatRupiah(data.totalPengeluaran)}</span>
+                            </div>
+                        `;
+                    } else {
+                        rincianRows = `
+                            <div class="rincian-empty">
+                                <i class="fas fa-check-circle" style="color:#43e97b;"></i> Tidak ada pengeluaran hari ini
+                            </div>
+                        `;
+                    }
+
+                    const tapHint = hasPengeluaran
+                        ? `<i class="fas fa-list"></i> Tap untuk lihat ${data.pengeluaran.length} rincian pengeluaran`
+                        : `<i class="fas fa-info-circle"></i> Tap untuk detail`;
+
+                    const card = `
+                        <div class="history-card${hasPengeluaran ? ' has-rincian' : ''}" id="card-${doc.id}">
+                            <div class="history-card-header" onclick="toggleRincian(document.getElementById('card-${doc.id}'))">
+                                <div class="history-date">
+                                    <div class="history-date-left">
+                                        <i class="fas fa-calendar-day"></i> ${formatTanggal(data.tanggal)}
+                                    </div>
+                                    <i class="fas fa-chevron-down toggle-icon"></i>
                                 </div>
-                                <div class="stat-item">
-                                    <div class="stat-label">Pengeluaran</div>
-                                    <div class="stat-value negative">${formatRupiah(data.totalPengeluaran)}</div>
+                                <div class="history-stats">
+                                    <div class="stat-item">
+                                        <div class="stat-label">Pendapatan Kotor</div>
+                                        <div class="stat-value primary">${formatRupiah(data.pendapatanKotor)}</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">Pengeluaran</div>
+                                        <div class="stat-value negative">${formatRupiah(data.totalPengeluaran)}</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">Pendapatan Bersih</div>
+                                        <div class="stat-value cyan">${formatRupiah(data.pendapatanBersih)}</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">Laba Bersih</div>
+                                        <div class="stat-value ${labaBersihClass}">${formatRupiah(data.labaBersih)}</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label"><i class="fas fa-wallet"></i> Uang Tunai</div>
+                                        <div class="stat-value tunai">${formatRupiah(data.uangTunai || 0)}</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label"><i class="fas fa-qrcode"></i> QRIS</div>
+                                        <div class="stat-value qris">${formatRupiah(data.qris || 0)}</div>
+                                    </div>
                                 </div>
-                                <div class="stat-item">
-                                    <div class="stat-label">Pendapatan Bersih</div>
-                                    <div class="stat-value cyan">${formatRupiah(data.pendapatanBersih)}</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-label">Laba Bersih</div>
-                                    <div class="stat-value ${labaBersihClass}">${formatRupiah(data.labaBersih)}</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-label"><i class="fas fa-wallet"></i> Uang Tunai</div>
-                                    <div class="stat-value tunai">${formatRupiah(data.uangTunai || 0)}</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-label"><i class="fas fa-qrcode"></i> QRIS</div>
-                                    <div class="stat-value qris">${formatRupiah(data.qris || 0)}</div>
+                                <div class="tap-hint">${tapHint}</div>
+                            </div>
+                            <div class="rincian-panel">
+                                <div class="rincian-inner">
+                                    <div class="rincian-title">
+                                        <i class="fas fa-list-ul"></i> Rincian Pengeluaran
+                                    </div>
+                                    ${rincianRows}
                                 </div>
                             </div>
                         </div>
@@ -930,6 +1118,7 @@
             }
         }
 
+        // ========== LOAD MINGGUAN (SAMA SEPERTI ASLI) ==========
         async function loadMingguan() {
             const summaryContainer = document.getElementById('mingguanSummary');
             const listContainer = document.getElementById('mingguanList');
@@ -1015,33 +1204,37 @@
                     const labaBersihClass = data.labaBersih < 0 ? 'loss' : 'positive';
                     const card = `
                         <div class="history-card">
-                            <div class="history-date">
-                                <i class="fas fa-calendar-week"></i> ${week}
-                            </div>
-                            <div class="history-stats">
-                                <div class="stat-item">
-                                    <div class="stat-label">Pendapatan Kotor</div>
-                                    <div class="stat-value primary">${formatRupiah(data.pendapatanKotor)}</div>
+                            <div class="history-card-header">
+                                <div class="history-date">
+                                    <div class="history-date-left">
+                                        <i class="fas fa-calendar-week"></i> ${week}
+                                    </div>
                                 </div>
-                                <div class="stat-item">
-                                    <div class="stat-label">Pengeluaran</div>
-                                    <div class="stat-value negative">${formatRupiah(data.totalPengeluaran)}</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-label">Pendapatan Bersih</div>
-                                    <div class="stat-value cyan">${formatRupiah(data.pendapatanBersih)}</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-label">Laba Bersih</div>
-                                    <div class="stat-value ${labaBersihClass}">${formatRupiah(data.labaBersih)}</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-label"><i class="fas fa-wallet"></i> Uang Tunai</div>
-                                    <div class="stat-value tunai">${formatRupiah(data.uangTunai)}</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-label"><i class="fas fa-qrcode"></i> QRIS</div>
-                                    <div class="stat-value qris">${formatRupiah(data.qris)}</div>
+                                <div class="history-stats">
+                                    <div class="stat-item">
+                                        <div class="stat-label">Pendapatan Kotor</div>
+                                        <div class="stat-value primary">${formatRupiah(data.pendapatanKotor)}</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">Pengeluaran</div>
+                                        <div class="stat-value negative">${formatRupiah(data.totalPengeluaran)}</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">Pendapatan Bersih</div>
+                                        <div class="stat-value cyan">${formatRupiah(data.pendapatanBersih)}</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">Laba Bersih</div>
+                                        <div class="stat-value ${labaBersihClass}">${formatRupiah(data.labaBersih)}</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label"><i class="fas fa-wallet"></i> Uang Tunai</div>
+                                        <div class="stat-value tunai">${formatRupiah(data.uangTunai)}</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label"><i class="fas fa-qrcode"></i> QRIS</div>
+                                        <div class="stat-value qris">${formatRupiah(data.qris)}</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1053,6 +1246,7 @@
             }
         }
 
+        // ========== LOAD BULANAN (SAMA SEPERTI ASLI) ==========
         async function loadBulanan() {
             const summaryContainer = document.getElementById('bulananSummary');
             const listContainer = document.getElementById('bulananList');
@@ -1139,33 +1333,37 @@
                     const labaBersihClass = data.labaBersih < 0 ? 'loss' : 'positive';
                     const card = `
                         <div class="history-card">
-                            <div class="history-date">
-                                <i class="fas fa-calendar-alt"></i> ${formatBulan(month)}
-                            </div>
-                            <div class="history-stats">
-                                <div class="stat-item">
-                                    <div class="stat-label">Pendapatan Kotor</div>
-                                    <div class="stat-value primary">${formatRupiah(data.pendapatanKotor)}</div>
+                            <div class="history-card-header">
+                                <div class="history-date">
+                                    <div class="history-date-left">
+                                        <i class="fas fa-calendar-alt"></i> ${formatBulan(month)}
+                                    </div>
                                 </div>
-                                <div class="stat-item">
-                                    <div class="stat-label">Pengeluaran</div>
-                                    <div class="stat-value negative">${formatRupiah(data.totalPengeluaran)}</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-label">Pendapatan Bersih</div>
-                                    <div class="stat-value cyan">${formatRupiah(data.pendapatanBersih)}</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-label">Laba Bersih</div>
-                                    <div class="stat-value ${labaBersihClass}">${formatRupiah(data.labaBersih)}</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-label"><i class="fas fa-wallet"></i> Uang Tunai</div>
-                                    <div class="stat-value tunai">${formatRupiah(data.uangTunai)}</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-label"><i class="fas fa-qrcode"></i> QRIS</div>
-                                    <div class="stat-value qris">${formatRupiah(data.qris)}</div>
+                                <div class="history-stats">
+                                    <div class="stat-item">
+                                        <div class="stat-label">Pendapatan Kotor</div>
+                                        <div class="stat-value primary">${formatRupiah(data.pendapatanKotor)}</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">Pengeluaran</div>
+                                        <div class="stat-value negative">${formatRupiah(data.totalPengeluaran)}</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">Pendapatan Bersih</div>
+                                        <div class="stat-value cyan">${formatRupiah(data.pendapatanBersih)}</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">Laba Bersih</div>
+                                        <div class="stat-value ${labaBersihClass}">${formatRupiah(data.labaBersih)}</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label"><i class="fas fa-wallet"></i> Uang Tunai</div>
+                                        <div class="stat-value tunai">${formatRupiah(data.uangTunai)}</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label"><i class="fas fa-qrcode"></i> QRIS</div>
+                                        <div class="stat-value qris">${formatRupiah(data.qris)}</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
